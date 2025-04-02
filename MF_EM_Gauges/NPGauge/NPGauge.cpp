@@ -9,12 +9,17 @@ namespace NPGauge
 #include "./include/red_led.h"
 #include "./include/red_marker.h"
 
+TFT_eSPI    tft;
+TFT_eSprite mainGaugeSpr = TFT_eSprite(&tft);
+TFT_eSprite needleSpr = TFT_eSprite(&tft);
+TFT_eSprite redLEDSpr = TFT_eSprite(&tft);
+TFT_eSprite redMarkerSpr = TFT_eSprite(&tft);
 
-TFT_eSPI    *tft;
-TFT_eSprite *mainGaugeSpr;
-TFT_eSprite *needleSpr;
-TFT_eSprite *redLEDSpr;
-TFT_eSprite *redMarkerSpr;
+// TFT_eSPI    *tft;
+// TFT_eSprite *mainGaugeSpr;
+// TFT_eSprite *needleSpr;
+// TFT_eSprite *redLEDSpr;
+// TFT_eSprite *redMarkerSpr;
 
 // Pointers to start of Sprites in RAM (these are then "image" pointers)
 uint16_t *mainGaugeSprPtr;
@@ -47,46 +52,42 @@ uint16_t instrumentX0              = 0;
 uint16_t instrumentY0              = 0;
 // bool     showLogo                  = true;
 
-void init(TFT_eSPI *_tft, TFT_eSprite *sprites, uint8_t pin_backlight)
+void init(uint8_t pin_backlight)
 {
     // backlight_pin = pin_backlight;
     backlight_pin = 16;
     pinMode(backlight_pin, OUTPUT);
     digitalWrite(backlight_pin, HIGH);
+    tft.begin();
+    tft.setRotation(0);
+    tft.fillScreen(TFT_BLACK);
+    tft.setPivot(120, 120);
 
-    tft = _tft;
-    tft->setRotation(0);
-    tft->setPivot(120, 120);
-    tft->fillScreen(TFT_BLACK);
-    tft->startWrite(); // TFT chip select held low permanently
+    mainGaugeSpr.createSprite(240, 240);
+    mainGaugeSpr.setPivot(120, 120);
+    mainGaugeSpr.loadFont(DotMatrix_Regular_30);
+    mainGaugeSpr.setTextColor(TFT_GREEN);
+    mainGaugeSpr.setTextDatum(TR_DATUM);
 
-    mainGaugeSpr    = &sprites[0];
-    needleSpr       = &sprites[1];
-    redLEDSpr       = &sprites[2];
-    redMarkerSpr    = &sprites[3];
+    needleSpr.createSprite(NEEDLE_WIDTH, NEEDLE_HEIGHT);
+    needleSpr.setPivot(NEEDLE_WIDTH / 2, 80);
+    needleSpr.pushImage(0, 0, NEEDLE_WIDTH, NEEDLE_HEIGHT, needle);
 
-    mainGaugeSprPtr = (uint16_t *)mainGaugeSpr->createSprite(240, 240);
-    mainGaugeSpr->setPivot(240, 240);
+    redLEDSpr.createSprite(RED_LED_WIDTH, RED_LED_HEIGHT);
+    redLEDSpr.pushImage(0, 0, RED_LED_WIDTH, RED_LED_HEIGHT, red_led);
 
-    needleSpr->createSprite(NEEDLE_WIDTH, NEEDLE_HEIGHT);
-    needleSpr->setPivot(NEEDLE_WIDTH / 2, 80);
-    needleSpr->pushImage(0, 0, NEEDLE_WIDTH, NEEDLE_HEIGHT, needle);
-
-    redLEDSpr->createSprite(RED_LED_WIDTH, RED_LED_HEIGHT);
-    redLEDSpr->pushImage(0, 0, RED_LED_WIDTH, RED_LED_HEIGHT, red_led);
-
-    redMarkerSpr->createSprite(RED_MARKER_WIDTH, RED_MARKER_HEIGHT);
-    redMarkerSpr->setPivot(RED_MARKER_WIDTH / 2, 110);
+    redMarkerSpr.createSprite(RED_MARKER_WIDTH, RED_MARKER_HEIGHT);
+    redMarkerSpr.pushImage(0, 0, RED_MARKER_WIDTH, RED_LED_HEIGHT, red_marker);
+    redMarkerSpr.setPivot(RED_MARKER_WIDTH / 2, 110);
 
 }
 
 void stop()
 {
-    tft->endWrite();
-    mainGaugeSpr->deleteSprite();
-    needleSpr->deleteSprite();
-    redLEDSpr->deleteSprite();
-    redMarkerSpr->deleteSprite();
+    mainGaugeSpr.deleteSprite();
+    needleSpr.deleteSprite();
+    redLEDSpr.deleteSprite();
+    redMarkerSpr.deleteSprite();
 }
 
 void set(int16_t messageID, char *setPoint)
@@ -129,19 +130,25 @@ void update()
 
 void drawGauge()
 {
-    mainGaugeSpr->fillSprite(TFT_BLACK);
-    mainGaugeSpr->pushImage(0, 0, 240, 240, main_gauge);
-    mainGaugeSpr->drawString(String((int)RPM), 168, 170);
-    mainGaugeSpr->drawSmoothArc(120, 120, 205 / 2, 195 / 2, minGreenAngle + 180, maxGreenAngle + 180, TFT_GREEN, TFT_BLACK);
+    needleRotationAngle = scaleValue(RPM, 0, 2400, -110, 110);
+    
+    minGreenAngle = scaleValue(minGreenRPM, 0, 2400, -110, 110);
+    maxGreenAngle = scaleValue(maxGreenRPM, 0, 2400, -110, 110);
+    redlineRPMAngle = scaleValue(redlineRPM, 0, 2400, -110, 110);
 
-    redMarkerSpr->pushRotated(mainGaugeSpr, redlineRPMAngle, TFT_BLACK);
-    needleSpr->pushRotated(mainGaugeSpr, needleRotationAngle, TFT_BLUE);
+    mainGaugeSpr.fillSprite(TFT_BLACK);
+    mainGaugeSpr.pushImage(0, 0, 240, 240, main_gauge);
+    mainGaugeSpr.drawString(String((int)RPM), 168, 170);
+    mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, minGreenAngle + 180, maxGreenAngle + 180, TFT_GREEN, TFT_BLACK);
+
+    redMarkerSpr.pushRotated(&mainGaugeSpr, redlineRPMAngle, TFT_BLACK);
+    needleSpr.pushRotated(&mainGaugeSpr, needleRotationAngle, TFT_BLUE);
 
     if (RPM >= redlineRPM )
-        redLEDSpr->pushToSprite(mainGaugeSpr, 38, 159, TFT_BLACK);
+        redLEDSpr.pushToSprite(&mainGaugeSpr, 38, 159, TFT_BLACK);
     
-    tft->pushImageDMA(instrumentX0, instrumentY0, 240, 240, mainGaugeSprPtr);
-    // gaugeSpr.pushSprite(0, 0, TFT_BLACK);
+    mainGaugeSpr.pushSprite(0, 0, TFT_BLACK);
+
 }
 
 void setRPM (float value)

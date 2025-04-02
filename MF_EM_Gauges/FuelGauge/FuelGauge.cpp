@@ -11,13 +11,12 @@ namespace FuelGauge
 // #define digits      NotoSansMonoSCB20
 // #define PANEL_COLOR 0x7BEE
 
-TFT_eSPI    *tft;
-TFT_eSprite *mainGaugeSpr;
-TFT_eSprite *needleLeftSpr;
-TFT_eSprite *needleRightSpr;
+TFT_eSPI    tft = TFT_eSprite(&tft); 
+TFT_eSprite mainGaugeSpr = TFT_eSprite(&tft); 
+TFT_eSprite needleLeftSpr = TFT_eSprite(&tft); 
+TFT_eSprite needleRightSpr = TFT_eSprite(&tft); 
 
 // Pointers to start of Sprites in RAM (these are then "image" pointers)
-uint16_t *mainGaugeSprPtr;
 
 // Function declarations
 float scaleValue(float x, float in_min, float in_max, float out_min, float out_max);
@@ -42,41 +41,35 @@ uint16_t instrumentX0              = 0;
 uint16_t instrumentY0              = 0;
 // bool     showLogo                  = true;
 
-void init(TFT_eSPI *_tft, TFT_eSprite *sprites, uint8_t pin_backlight)
+void init(uint8_t pin_backlight)
 {
     // backlight_pin = pin_backlight;
     backlight_pin = 16;
     pinMode(backlight_pin, OUTPUT);
     digitalWrite(backlight_pin, HIGH);
 
-    tft = _tft;
-    tft->setRotation(0);
-    tft->setPivot(120, 120);
-    tft->fillScreen(TFT_BLACK);
-    tft->startWrite(); // TFT chip select held low permanently
+    tft.begin();
+    tft.setRotation(0);
+    tft.setPivot(120, 120);
+    tft.fillScreen(TFT_BLACK);
 
-    mainGaugeSpr    = &sprites[0];
-    needleLeftSpr   = &sprites[1];
-    needleRightSpr  = &sprites[2];
+    mainGaugeSpr.createSprite(240, 240);
+    mainGaugeSpr.setPivot(120, 120);
 
-    mainGaugeSprPtr = (uint16_t *)mainGaugeSpr->createSprite(240, 240);
-    mainGaugeSpr->setPivot(120, 120);
+    needleLeftSpr.createSprite(NEEDLE_LEFT_WIDTH, NEEDLE_LEFT_HEIGHT);
+    needleLeftSpr.setPivot(NEEDLE_LEFT_WIDTH / 2, 85);
+    needleLeftSpr.pushImage(0, 0, NEEDLE_LEFT_WIDTH, NEEDLE_LEFT_HEIGHT, needle_left);
 
-    needleLeftSpr->createSprite(NEEDLE_LEFT_WIDTH, NEEDLE_LEFT_HEIGHT);
-    needleLeftSpr->setPivot(NEEDLE_LEFT_WIDTH / 2, 85);
-    needleLeftSpr->pushImage(0, 0, NEEDLE_LEFT_WIDTH, NEEDLE_LEFT_HEIGHT, needle_left);
-
-    needleRightSpr->createSprite(NEEDLE_RIGHT_WIDTH, NEEDLE_RIGHT_HEIGHT);
-    needleRightSpr->setPivot(NEEDLE_RIGHT_WIDTH / 2, 85);
-    needleRightSpr->pushImage(0, 0, NEEDLE_RIGHT_WIDTH, NEEDLE_RIGHT_HEIGHT, needle_right);
+    needleRightSpr.createSprite(NEEDLE_RIGHT_WIDTH, NEEDLE_RIGHT_HEIGHT);
+    needleRightSpr.setPivot(NEEDLE_RIGHT_WIDTH / 2, 85);
+    needleRightSpr.pushImage(0, 0, NEEDLE_RIGHT_WIDTH, NEEDLE_RIGHT_HEIGHT, needle_right);
 }
 
 void stop()
 {
-    tft->endWrite();
-    mainGaugeSpr->deleteSprite();
-    needleLeftSpr->deleteSprite();
-    needleRightSpr->deleteSprite();
+    mainGaugeSpr.deleteSprite();
+    needleLeftSpr.deleteSprite();
+    needleRightSpr.deleteSprite();
 }
 
 void set(int16_t messageID, char *setPoint)
@@ -122,17 +115,17 @@ void update()
 
 void drawGauge()
 {
-    mainGaugeSpr->fillSprite(TFT_BLACK);
-    mainGaugeSpr->pushImage(0, 0, 240, 240, main_gauge);
+    mainGaugeSpr.fillSprite(TFT_BLACK);
+    mainGaugeSpr.pushImage(0, 0, 240, 240, main_gauge);
 
     
     needleLeftRotationAngle = scaleValue(leftFuel, 0, 25, -145, -35);
-    needleLeftSpr->pushRotated(mainGaugeSpr, needleLeftRotationAngle, TFT_BLUE);
+    needleLeftSpr.pushRotated(&mainGaugeSpr, needleLeftRotationAngle, TFT_BLUE);
 
     needleRightRotationAngle = scaleValue(rightFuel, 0, 25, 145, 35);
-    needleRightSpr->pushRotated(mainGaugeSpr, needleRightRotationAngle, TFT_BLUE);
+    needleRightSpr.pushRotated(&mainGaugeSpr, needleRightRotationAngle, TFT_BLUE);
 
-    tft->pushImageDMA(instrumentX0, instrumentY0, 240, 240, mainGaugeSprPtr);
+    mainGaugeSpr.pushSprite(0, 0, TFT_BLACK);
 
 }
 

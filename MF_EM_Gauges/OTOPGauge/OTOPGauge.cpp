@@ -9,14 +9,12 @@ namespace OTOPGauge
 #include "./include/needle_op.h"
 #include "./include/red_led.h"
 #include "./include/red_marker.h"
-
-
-TFT_eSPI    *tft;
-TFT_eSprite *mainGaugeSpr;
-TFT_eSprite *needleOTSpr;
-TFT_eSprite *needleOPSpr;
-TFT_eSprite *redLEDSpr;
-TFT_eSprite *redMarkerSpr;
+TFT_eSPI    tft = TFT_eSPI();
+TFT_eSprite mainGaugeSpr = TFT_eSprite(&tft);
+TFT_eSprite needleOTSpr = TFT_eSprite(&tft);;
+TFT_eSprite needleOPSpr = TFT_eSprite(&tft);;
+TFT_eSprite redLEDSpr = TFT_eSprite(&tft);;
+TFT_eSprite redMarkerSpr = TFT_eSprite(&tft);;
 
 // Pointers to start of Sprites in RAM (these are then "image" pointers)
 uint16_t *mainGaugeSprPtr;
@@ -78,53 +76,44 @@ uint16_t instrumentX0              = 0;
 uint16_t instrumentY0              = 0;
 // bool     showLogo                  = true;
 
-void init(TFT_eSPI *_tft, TFT_eSprite *sprites, uint8_t pin_backlight)
+void init(uint8_t pin_backlight)
 {
     // backlight_pin = pin_backlight;
     backlight_pin = 16;
     pinMode(backlight_pin, OUTPUT);
     digitalWrite(backlight_pin, HIGH);
+    tft.begin();
+    tft.setRotation(0);
+    tft.setPivot(120, 120);
+    tft.fillScreen(TFT_BLACK);
 
-    tft = _tft;
-    tft->setRotation(0);
-    tft->setPivot(120, 120);
-    tft->fillScreen(TFT_BLACK);
-    tft->startWrite(); // TFT chip select held low permanently
+    mainGaugeSpr.createSprite(240, 240);
+    mainGaugeSpr.setPivot(120, 120);
 
-    mainGaugeSpr    = &sprites[0];
-    needleOTSpr     = &sprites[1];
-    needleOPSpr     = &sprites[2];
-    redLEDSpr       = &sprites[3];
-    redMarkerSpr    = &sprites[4];
+    needleOTSpr.createSprite(NEEDLE_OT_WIDTH, NEEDLE_OT_HEIGHT);
+    needleOTSpr.setPivot(NEEDLE_OT_WIDTH / 2, 85);
+    needleOTSpr.pushImage(0, 0, NEEDLE_OT_WIDTH, NEEDLE_OT_HEIGHT, needle_ot);
 
-
-    mainGaugeSprPtr = (uint16_t *)mainGaugeSpr->createSprite(240, 240);
-    mainGaugeSpr->setPivot(240, 240);
-
-    needleOTSpr->createSprite(NEEDLE_OT_WIDTH, NEEDLE_OT_HEIGHT);
-    needleOTSpr->setPivot(NEEDLE_OT_WIDTH / 2, 85);
-    needleOTSpr->pushImage(0, 0, NEEDLE_OT_WIDTH, NEEDLE_OT_HEIGHT, needle_ot);
-
-    needleOPSpr->createSprite(NEEDLE_OP_WIDTH, NEEDLE_OP_HEIGHT);
-    needleOPSpr->setPivot(NEEDLE_OP_WIDTH / 2, 85);
-    needleOPSpr->pushImage(0, 0, NEEDLE_OP_WIDTH, NEEDLE_OP_HEIGHT, needle_op);
+    needleOPSpr.createSprite(NEEDLE_OP_WIDTH, NEEDLE_OP_HEIGHT);
+    needleOPSpr.setPivot(NEEDLE_OP_WIDTH / 2, 85);
+    needleOPSpr.pushImage(0, 0, NEEDLE_OP_WIDTH, NEEDLE_OP_HEIGHT, needle_op);
     
-    redLEDSpr->createSprite(RED_LED_WIDTH, RED_LED_HEIGHT);
-    redLEDSpr->pushImage(0, 0, RED_LED_WIDTH, RED_LED_HEIGHT, red_led);
+    redLEDSpr.createSprite(RED_LED_WIDTH, RED_LED_HEIGHT);
+    redLEDSpr.pushImage(0, 0, RED_LED_WIDTH, RED_LED_HEIGHT, red_led);
 
-    redMarkerSpr->createSprite(RED_MARKER_WIDTH, RED_MARKER_HEIGHT);
-    redMarkerSpr->pushImage(0, 0, RED_MARKER_WIDTH, RED_MARKER_HEIGHT, red_marker);
+    redMarkerSpr.createSprite(RED_MARKER_WIDTH, RED_MARKER_HEIGHT);
+    redMarkerSpr.pushImage(0, 0, RED_MARKER_WIDTH, RED_MARKER_HEIGHT, red_marker);
+    redMarkerSpr.setPivot(RED_MARKER_WIDTH / 2, 110);
 
 }
 
 void stop()
 {
-    tft->endWrite();
-    mainGaugeSpr->deleteSprite();
-    needleOTSpr->deleteSprite();
-    needleOPSpr->deleteSprite();
-    redLEDSpr->deleteSprite();
-    redMarkerSpr->deleteSprite();
+    mainGaugeSpr.deleteSprite();
+    needleOTSpr.deleteSprite();
+    needleOPSpr.deleteSprite();
+    redLEDSpr.deleteSprite();
+    redMarkerSpr.deleteSprite();
 }
 
 void set(int16_t messageID, char *setPoint)
@@ -171,13 +160,13 @@ void update()
 void drawGauge()
 {
 
-    mainGaugeSpr->fillSprite(TFT_BLACK);
-    mainGaugeSpr->pushImage(0, 0, 240, 240, main_gauge);
+    mainGaugeSpr.fillSprite(TFT_BLACK);
+    mainGaugeSpr.pushImage(0, 0, 240, 240, main_gauge);
 
     drawOTGauge();
     drawOPGauge();
 
-    tft->pushImageDMA(instrumentX0, instrumentY0, 240, 240, mainGaugeSprPtr);
+    mainGaugeSpr.pushSprite(0, 0, TFT_BLACK);
     // gaugeSpr.pushSprite(0, 0, TFT_BLACK);
 }
 
@@ -195,18 +184,18 @@ void drawOTGauge()
     
     needleOTRotationAngle = scaleValue(oilTemperature, -50, 150, -145, -35);
 
-    mainGaugeSpr->drawSmoothArc(120, 120, 205 / 2, 195 / 2, minOTYellowAngle + 180, maxOTYellowAngle + 180, TFT_YELLOW, TFT_BLACK); // Draw Yellow Line
+    mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, minOTYellowAngle + 180, maxOTYellowAngle + 180, TFT_YELLOW, TFT_BLACK); // Draw Yellow Line
 
-    mainGaugeSpr->drawSmoothArc(120, 120, 205 / 2, 195 / 2, minOTGreenAngle + 180, maxOTGreenAngle + 180, TFT_GREEN, TFT_BLACK); // Draw Yellow Line
+    mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, minOTGreenAngle + 180, maxOTGreenAngle + 180, TFT_GREEN, TFT_BLACK); // Draw Yellow Line
 
-    needleOTSpr->pushRotated(mainGaugeSpr, needleOTRotationAngle, TFT_BLUE);
+    needleOTSpr.pushRotated(&mainGaugeSpr, needleOTRotationAngle, TFT_BLUE);
 
-    redMarkerSpr->pushRotated(mainGaugeSpr, minOTRedAngle, TFT_BLACK); // Draw the minimum red line for Oil Temperature
-    redMarkerSpr->pushRotated(mainGaugeSpr, maxOTRedAngle, TFT_BLACK); // Draw the maximum red line for Oil Temperature
+    redMarkerSpr.pushRotated(&mainGaugeSpr, minOTRedAngle, TFT_BLACK); // Draw the minimum red line for Oil Temperature
+    redMarkerSpr.pushRotated(&mainGaugeSpr, maxOTRedAngle, TFT_BLACK); // Draw the maximum red line for Oil Temperature
 
     // Draw the Red LED
     if (oilTemperature <= minOTRed || oilTemperature >= maxOTRed)
-        redLEDSpr->pushToSprite(mainGaugeSpr, 110, 204, TFT_BLACK);
+        redLEDSpr.pushToSprite(&mainGaugeSpr, 110, 204, TFT_BLACK);
 
 }
 
@@ -262,18 +251,18 @@ void drawOPGauge()
     else
         needleOPRotationAngle= scaleValue(oilPressure, 40, 120, 120, 60);
 
-    mainGaugeSpr->drawSmoothArc(120, 120, 205 / 2, 195 / 2, maxOPYellowAngle + 180, minOPYellowAngle + 180, TFT_YELLOW, TFT_BLACK); // Draw Yellow Line
+    mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, maxOPYellowAngle + 180, minOPYellowAngle + 180, TFT_YELLOW, TFT_BLACK); // Draw Yellow Line
 
-    mainGaugeSpr->drawSmoothArc(120, 120, 205 / 2, 195 / 2, maxOPGreenAngle + 180, minOPGreenAngle + 180, TFT_GREEN, TFT_BLACK); // Draw Yellow Line
+    mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, maxOPGreenAngle + 180, minOPGreenAngle + 180, TFT_GREEN, TFT_BLACK); // Draw Yellow Line
 
-    redMarkerSpr->pushRotated(mainGaugeSpr, minOPRedAngle, TFT_BLACK); // Draw the minimum red line for Oil Temperature
-    redMarkerSpr->pushRotated(mainGaugeSpr, maxOPRedAngle, TFT_BLACK); // Draw the maximum red line for Oil Temperature
+    redMarkerSpr.pushRotated(&mainGaugeSpr, minOPRedAngle, TFT_BLACK); // Draw the minimum red line for Oil Temperature
+    redMarkerSpr.pushRotated(&mainGaugeSpr, maxOPRedAngle, TFT_BLACK); // Draw the maximum red line for Oil Temperature
 
-    needleOPSpr->pushRotated(mainGaugeSpr, needleOPRotationAngle, TFT_BLUE);
+    needleOPSpr.pushRotated(&mainGaugeSpr, needleOPRotationAngle, TFT_BLUE);
 
     // Draw the red led
     if (oilPressure <= minOPRed || oilPressure >= maxOPRed)
-        redLEDSpr->pushToSprite(mainGaugeSpr, 110, 204, TFT_BLACK);
+        redLEDSpr.pushToSprite(&mainGaugeSpr, 110, 204, TFT_BLACK);
 
     // mainGaugeSpr.drawString(String(angle), 168, 170);
     // needleSpr.pushRotated(&mainGaugeSpr, angle, TFT_BLUE);

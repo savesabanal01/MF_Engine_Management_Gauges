@@ -28,11 +28,11 @@ extern MFEEPROM MFeeprom;
 ********************************************************************************** */
 #define MEMLEN_STRING_BUFFER 40
 
-TFT_eSPI *tft;
+TFT_eSPI tft = TFT_eSPI();
 // Sprites for Instruments, max. number which can be used for an instrument
-TFT_eSprite spr[10] = {TFT_eSprite(tft), TFT_eSprite(tft), TFT_eSprite(tft), TFT_eSprite(tft),
-                       TFT_eSprite(tft), TFT_eSprite(tft), TFT_eSprite(tft), TFT_eSprite(tft),
-                       TFT_eSprite(tft), TFT_eSprite(tft)};
+TFT_eSprite spr[10] = {TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft),
+                       TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft), TFT_eSprite(&tft),
+                       TFT_eSprite(&tft), TFT_eSprite(&tft)};
 
 // reads a string from EEPROM or Flash at given address which is '.' terminated and saves it to the buffer
 bool MFCustomDevice::getStringFromMem(uint16_t addrMem, char *buffer, bool configFromFlash)
@@ -162,24 +162,25 @@ void MFCustomDevice::attach(uint16_t adrPin, uint16_t adrType, uint16_t adrConfi
                         freq,
                         freq);
 #endif
-        tft = new (allocateMemory(sizeof(TFT_eSPI))) TFT_eSPI();
-        tft->init();
-        tft->initDMA();
-        millis_start = millis();
-        tft->fillScreen(TFT_BLACK);
-        millis_end = millis();
-        tft->setRotation(0);
+        // tft = new (allocateMemory(sizeof(TFT_eSPI))) TFT_eSPI();
+        // tft->init();
+        // tft.begin();
+        // // tft->initDMA();
+        // millis_start = millis();
+        // tft.fillScreen(TFT_BLACK);
+        // millis_end = millis();
+        // tft.setRotation(0);
     } else {
         cmdMessenger.sendCmd(kStatus, F("Custom Device is not supported by this firmware version"));
     }
     if (_customType == FF_GAUGE) {
-        FFGauge::init(tft, spr, _pin1);
+        FFGauge::init(_pin1);
     } else if (_customType == FUEL_GAUGE) {
-        FuelGauge::init(tft, spr, _pin1);
+        FuelGauge::init(_pin1);
     } else if (_customType == NP_GAUGE) {
-        NPGauge::init(tft, spr, _pin1);
+        NPGauge::init(_pin1);
     } else if (_customType == OTOP_GAUGE) {
-        OTOPGauge::init(tft, spr, _pin1);
+        OTOPGauge::init(_pin1);
     } 
 
     _initialized = true;
