@@ -1,0 +1,30 @@
+{
+    "$schema": "./mfdevice.schema.json",
+    "Info": {
+      "Label": "Oil Temperature/Pressure",
+      "Type": "OTOPGauge",
+      "Author": "saves",
+      "URL": "https://github.com",
+      "Version" : "1.0.0"
+    },
+    "Config": {
+      "Pins": [
+        "Backlight"
+      ],
+      "isI2C": false
+    },
+    "MessageTypes": [
+      {
+        "id": 0,
+        "label": "Show Oil Temperature Value",
+        "description": "$ will be displayed as Oil Temperature value"
+      },
+      {
+        "id": 1,
+        "label": "Show Oil Pressure Value",
+        "description": "$ will be displayed as Oil Pressure value"
+      }
+
+    ]
+  }
+  
