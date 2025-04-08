@@ -1,0 +1,29 @@
+{
+    "$schema": "./mfdevice.schema.json",
+    "Info": {
+      "Label": "Fuel Gauge",
+      "Type": "FuelGauge",
+      "Author": "saves",
+      "URL": "https://github.com",
+      "Version" : "1.0.0"
+    },
+    "Config": {
+      "Pins": [
+        "Backlight"
+      ],
+      "isI2C": false
+    },
+    "MessageTypes": [
+      {
+        "id": 0,
+        "label": "Left Fuel Gauge Value",
+        "description": "$ will be displayed as Left Fuel Gauge value"
+      },
+      {
+        "id": 1,
+        "label": "Right Fuel Gauge Value",
+        "description": "$ will be displayed as Left Right Gauge value"
+      }
+    ]
+  }
+  

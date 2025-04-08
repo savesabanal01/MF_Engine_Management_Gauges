@@ -17,15 +17,17 @@
     "Info": {
       "CanInstallFirmware": true,
       "CanResetBoard": true,
-      "FirmwareBaseName": "mobiflight_template_raspberrypico",
+      "FirmwareBaseName": "saves_mf_em_gauges_raspberrypico",
       "FirmwareExtension": "uf2",
-      "FriendlyName": "Mobiflight Template RaspiPico",
+      "FriendlyName": "saves MF_EM_Gauges RaspiPico",
       "LatestFirmwareVersion": "0.0.1",
-      "MobiFlightType": "Mobiflight Template RaspiPico",
+      "MobiFlightType": "saves MF_EM_Gauges RaspiPico",
       "ResetFirmwareFile": "reset.raspberry_pico_flash_nuke.uf2",
       "CustomDeviceTypes": [
-        "MOBIFLIGHT_TEMPLATE",
-        "MOBIFLIGHT_TEMPLATE2"
+        "FFGauge",
+        "FuelGauge",
+        "NPGauge",
+        "OTOPGauge"
       ],
       "Community": {
         "Project": "Your Project",
