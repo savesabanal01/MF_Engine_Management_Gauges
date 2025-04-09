@@ -1,4 +1,4 @@
-#include "MyCustomClass.h"
+#include "MF_EM_Gauges.h"
 #include "allocateMem.h"
 #include "commandmessenger.h"
 
@@ -7,29 +7,29 @@
     Change/add your code as needed.
 ********************************************************************************** */
 
-MyCustomClass::MyCustomClass(uint8_t Pin1, uint8_t Pin2)
+MF_EM_Gauges::MF_EM_Gauges(uint8_t Pin1, uint8_t Pin2)
 {
     _pin1 = Pin1;
     _pin2 = Pin2;
 }
 
-void MyCustomClass::begin()
+void MF_EM_Gauges::begin()
 {
 }
 
-void MyCustomClass::attach(uint16_t Pin3, char *init)
+void MF_EM_Gauges::attach(uint16_t Pin3, char *init)
 {
     _pin3 = Pin3;
 }
 
-void MyCustomClass::detach()
+void MF_EM_Gauges::detach()
 {
     if (!_initialised)
         return;
     _initialised = false;
 }
 
-void MyCustomClass::set(int16_t messageID, char *setPoint)
+void MF_EM_Gauges::set(int16_t messageID, char *setPoint)
 {
     /* **********************************************************************************
         Each messageID has it's own value
@@ -65,7 +65,7 @@ void MyCustomClass::set(int16_t messageID, char *setPoint)
     }
 }
 
-void MyCustomClass::update()
+void MF_EM_Gauges::update()
 {
     // Do something which is required regulary
 }

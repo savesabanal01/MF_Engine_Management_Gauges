@@ -1,9 +1,9 @@
 {
     "$schema": "./mfdevice.schema.json",
     "Info": {
-      "Label": "Mobiflight's template",
-      "Type": "MOBIFLIGHT_TEMPLATE",
-      "Author": "Mobiflight",
+      "Label": "saves's MF_EM_Gauges",
+      "Type": "MF_EM_Gauges2",
+      "Author": "saves",
       "URL": "https://github.com",
       "Version" : "1.0.0"
     },

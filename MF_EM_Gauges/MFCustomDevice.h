@@ -1,12 +1,21 @@
 #pragma once
 
 #include <Arduino.h>
-#include "MyCustomClass.h"
+#include "FFGauge/FFGauge.h"
+#include "FuelGauge/FuelGauge.h"
+#include "NPGauge/NPGauge.h"
+#include "ITTGauge/ITTGauge.h"
+#include "OTOPGauge/OTOPGauge.h"
+#include "TRQGauge/TRQGauge.h"
 
 // only one entry required if you have only one custom device
 enum {
-    MY_CUSTOM_DEVICE_1 = 1,
-    MY_CUSTOM_DEVICE_2
+    FF_GAUGE = 1,
+    FUEL_GAUGE,
+    ITT_GAUGE,
+    NP_GAUGE,
+    OTOP_GAUGE,
+    TRQ_GAUGE
 };
 class MFCustomDevice
 {
@@ -20,7 +29,12 @@ public:
 private:
     bool           getStringFromMem(uint16_t addreeprom, char *buffer, bool configFromFlash);
     bool           _initialized = false;
-    MyCustomClass *_mydevice;
+    FFGauge        *_myFFGauge;
+    FuelGauge      *_myFuelGauge;
+    ITTGauge       *_myITTGauge;
+    NPGauge        *_myNPGauge;
+    OTOPGauge      *_myOTOPGauge;
+    TRQGauge       *_myTRQGauge;
     uint8_t        _pin1, _pin2, _pin3;
     uint8_t        _customType = 0;
 };

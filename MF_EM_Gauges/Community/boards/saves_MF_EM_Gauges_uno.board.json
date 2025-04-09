@@ -29,15 +29,15 @@
   "Info": {
     "CanInstallFirmware": true,
     "CanResetBoard": true,
-    "FirmwareBaseName": "mobiflight_template_uno",
+    "FirmwareBaseName": "saves_mf_em_gauges_uno",
     "FirmwareExtension": "hex",
-    "FriendlyName": "Mobiflight Template Uno",
+    "FriendlyName": "saves MF_EM_Gauges Uno",
     "LatestFirmwareVersion": "0.0.1",
-    "MobiFlightType": "Mobiflight Template Uno",
+    "MobiFlightType": "saves MF_EM_Gauges Uno",
     "ResetFirmwareFile": "reset.arduino_uno_1_0_2.hex",
     "CustomDeviceTypes": [
-      "MOBIFLIGHT_TEMPLATE",
-      "MOBIFLIGHT_TEMPLATE2"
+      "MF_EM_Gauges",
+      "MF_EM_Gauges2"
     ],
     "Community": {
       "Project": "Your Project",
