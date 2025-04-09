@@ -115,7 +115,7 @@ void update()
 
 void drawGauge()
 {
-    needleRotationAngle = scaleValue(fuelFlow, 0, 70, -110, 110);
+    needleRotationAngle = scaleValue(fuelFlow, 0, 700, -110, 110);
 
     mainGaugeSpr.fillSprite(TFT_BLACK);
     mainGaugeSpr.pushImage(0, 0, 240, 240, main_gauge);

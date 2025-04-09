@@ -1,6 +1,6 @@
-#include "NPGauge.h"
+#include "ITTGauge.h"
 
-namespace NPGauge
+namespace ITTGauge
 {
 
 #include "./include/DotMatrix_Regular-30.h"
@@ -27,23 +27,23 @@ uint16_t *mainGaugeSprPtr;
 // Function declarations
 float scaleValue(float x, float in_min, float in_max, float out_min, float out_max);
 void  setInstrumentBrightnessRatio(float ratio);
-void  setRPM(float value);
+void  setITT(float value);
 void  setPowerSave(bool enabled);
 void  drawGauge();
 
 // Variables
-float    RPM                  = 0;  // RPM Value from sim
+float    ITT                  = 0;  // ITT Value from sim
 float    instrumentBrightness      = 255;  // Instrument Brightness Ratio from sim
 float    instrumentBrightnessRatio = 0;
-float    needleRotationAngle         = 0; // angle of rotation of needle based on the RPM
+float    needleRotationAngle         = 0; // angle of rotation of needle based on the ITT
 
 float minGreenAngle = 0;
 float maxGreenAngle = 0;
-float redlineRPMAngle = 0;
+float redlineITTAngle = 0;
 
-float minGreenRPM = 1600;
-float maxGreenRPM = 1900;
-float redlineRPM = 1900;
+float minGreenITT = 1600;
+float maxGreenITT = 1900;
+float redlineITT = 1900;
 
 int numOfDataPoints = 3;
 int counter = 0;
@@ -123,7 +123,7 @@ void set(int16_t messageID, char *setPoint)
         setPowerSave((bool)atoi(setPoint));
         break;
     case 0:
-        setRPM(atof(setPoint));
+        setITT(atof(setPoint));
         break;
     case 1:
         setInstrumentBrightnessRatio(atof(setPoint));
@@ -147,21 +147,21 @@ void drawGauge()
 {
 
     
-    minGreenAngle = scaleValue(minGreenRPM, 0, 2400, -110, 110);
-    maxGreenAngle = scaleValue(maxGreenRPM, 0, 2400, -110, 110);
-    redlineRPMAngle = scaleValue(redlineRPM, 0, 2400, -110, 110);
+    minGreenAngle = scaleValue(minGreenITT, 0, 2400, -110, 110);
+    maxGreenAngle = scaleValue(maxGreenITT, 0, 2400, -110, 110);
+    redlineITTAngle = scaleValue(redlineITT, 0, 2400, -110, 110);
 
     
     mainGaugeSpr.fillSprite(TFT_BLACK);
     mainGaugeSpr.pushImage(0, 0, 240, 240, main_gauge);
-    mainGaugeSpr.drawString(String((int)RPM), 168, 170);
+    mainGaugeSpr.drawString(String((int)ITT), 168, 170);
     mainGaugeSpr.drawSmoothArc(120, 120, 205 / 2, 195 / 2, minGreenAngle + 180, maxGreenAngle + 180, TFT_GREEN, TFT_BLACK);
 
-    needleRotationAngle = scaleValue(RPM, 0, 2400, -110, 110);
-    redMarkerSpr.pushRotated(&mainGaugeSpr, redlineRPMAngle, TFT_BLACK);
+    needleRotationAngle = scaleValue(ITT, 200, 1200, -110, 110);
+    redMarkerSpr.pushRotated(&mainGaugeSpr, redlineITTAngle, TFT_BLACK);
     needleSpr.pushRotated(&mainGaugeSpr, needleRotationAngle, TFT_BLUE);
 
-    if (RPM >= redlineRPM )
+    if (ITT >= redlineITT )
         redLEDSpr.pushToSprite(&mainGaugeSpr, 38, 159, TFT_BLACK);
 
 #ifdef USE_DMA_TO_TFT
@@ -173,9 +173,9 @@ void drawGauge()
 
 }
 
-void setRPM (float value)
+void setITT (float value)
 {
-    RPM = value;
+    ITT = value;
     drawGauge();
 }
 
