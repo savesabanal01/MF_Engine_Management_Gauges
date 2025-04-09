@@ -24,8 +24,10 @@
       "MobiFlightType": "saves MF_EM_Gauges RaspiPico",
       "ResetFirmwareFile": "reset.raspberry_pico_flash_nuke.uf2",
       "CustomDeviceTypes": [
-        "MF_EM_Gauges",
-        "MF_EM_Gauges2"
+        "FFGauge",
+        "FuelGauge",
+        "NPGauge",
+        "OTOPGauge"
       ],
       "Community": {
         "Project": "Your Project",
